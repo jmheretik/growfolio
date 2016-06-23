@@ -1,0 +1,81 @@
+/***** MAIN *****/
+
+html { box-sizing: border-box; font-size: 100%; }
+
+*, *:before, *:after {box-sizing: inherit;}
+
+body { font-family: 'custom'; }
+
+/***** SCREENS > 900 *****/
+
+/***** HEADER *****/
+
+/*header {width: 100%; }*/
+
+/***** NAV *****/
+
+/*nav {
+	width: 860px;
+	margin: 0 auto;
+}
+
+nav ul {
+	list-style-type: none;
+	margin: 0;
+}
+
+nav ul li {
+	display: inline;
+	cursor: pointer;
+}
+
+nav ul li:hover, nav ul li.clicked {color: blue; }*/
+
+/***** ARTICLES *****/
+
+/*article {
+	width: 80%;
+	background-color: white;
+}
+
+aside {
+	float: right;
+	width: 38%;
+	text-align: right;
+}*/
+
+/***** SCREENS <= 900 *****/
+
+@media (max-width: 900px) {
+	
+}
+
+/***** SCREENS <= 700 *****/
+
+@media (max-width: 700px) {
+	
+}
+
+/***** SCREENS <= 420 *****/
+
+@media (max-width: 420px) {
+	
+}
+
+/***** ANIMATIONS *****/
+
+/*header {
+	-webkit-transform: rotateY(45deg);
+	-moz-transform: rotateY(45deg);
+	-o-transform: rotateY(45deg);
+	transform: rotateY(45deg);
+	-webkit-animation: otacanie 5s linear infinite;
+	-moz-animation: otacanie 5s linear infinite;
+	-o-animation: otacanie 5s linear infinite;
+	animation: otacanie 5s linear infinite;
+}
+
+@-webkit-keyframes otacanie {50% {-webkit-transform: rotateY(-45deg);}}
+@-moz-keyframes otacanie {50% {-moz-transform: rotateY(-45deg);}}
+@-o-keyframes otacanie {50% {-o-transform: rotateY(-45deg);}}
+@keyframes otacanie {50% {transform: rotateY(-45deg);}}*/
