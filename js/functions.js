@@ -5,23 +5,25 @@ var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Const
 var isChrome = !!window.chrome && !isOpera; // Chrome 1+
 var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
 
-// Determine if the browser has a webkit core
+// determine if the browser has a webkit core
 function isWebkit() {
     var ua = window.navigator.userAgent;
     var msie = ua.indexOf("MSIE ");
     var ff = ua.toLowerCase().indexOf("firefox");
 
-    if (ff > 0 || msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./))
+    if (ff > 0 || msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
         return false;
-    else
+    } else {
         return true;
+    }
 }
 
-// Determine if the parameter is numeric
+// determine if the parameter is numeric
 function isNumber(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
 }
 
+// determine if element has parent with such selector
 $.fn.hasParent = function (e) {
     return !!$(this).closest(e).length;
 }
