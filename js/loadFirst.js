@@ -1,4 +1,5 @@
 /// <reference path="three.d.ts" />
+/// <reference path="three-orbitcontrols.d.ts" />
 
 $(document).on('ready', function () {
     var container = document.getElementById("container");
@@ -13,40 +14,57 @@ $(document).on('ready', function () {
     container.appendChild(renderer.domElement);
 
     var camera = new THREE.PerspectiveCamera(75, displayWidth / displayHeight, 0.1, 1000);
-    camera.position.z = 2;
+    camera.position.z = 100;
+
+    // handle mouse movements
+    var controls = new THREE.OrbitControls(camera, renderer.domElement);
+
+    // render only when mouse was dragged/zoomed
+    controls.addEventListener('change', render);
 
     var scene = new THREE.Scene();
 
-    var geometry = new THREE.BoxGeometry(1, 1, 1);
-    var material = new THREE.MeshPhongMaterial({
-        ambient: 0x555555,
-        color: 0x555555,
-        specular: 0xffffff,
-        shininess: 50,
-        shading: THREE.SmoothShading
-    });
-    var mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
+    // front light
+    var light = new THREE.PointLight(0xffffff, 1, 0);
+    light.position.set(0, 0, 100);
+    scene.add(light);
 
-    var light1 = new THREE.PointLight(0xff0040, 2, 0);
-    light1.position.set(-0.5, 0, 1);
-    scene.add(light1);
-
-    var light2 = new THREE.PointLight(0x00f0ff, 2, 0);
-    light2.position.set(0.5, 0, 1);
+    // back light
+    var light2 = new THREE.PointLight(0xffffff, 1, 0);
+    light2.position.set(0, 0, -100);
     scene.add(light2);
 
+    // HD texture for the website plane
+    var loader = new THREE.TextureLoader();
+    var texture = loader.load("images/robertfinkei.png");
+    var material = new THREE.MeshPhongMaterial({ map: texture });
+
+    // low resolution blurred image for extracting height data
+    var img = new Image();
+    img.src = "images/robertfinkei_map.png";
+
+    img.onload = function () {
+        var heightData = getHeightDataFromImage(img);
+
+        // add plane of the same resolution
+        var plane = new THREE.Mesh(new THREE.PlaneGeometry(img.width, img.height, img.width - 1, img.height - 1), material);
+        plane.material.side = THREE.DoubleSide;
+
+        // manipulate height of vertices
+        for (var i = 0; i < plane.geometry.vertices.length; i++) {
+            plane.geometry.vertices[i].z = -heightData[i] / 10;
+        }
+
+        scene.add(plane);
+    };
+
     function render() {
-        requestAnimationFrame(render);
-
-        mesh.rotation.x += 0.005;
-        mesh.rotation.y += 0.01;
-
         renderer.render(scene, camera);
     }
 
-    // recompute canvas width and height and set camera accordingly
     $(window).on('resize', function () {
+
+        // recompute canvas width and height and set camera accordingly
         displayWidth = Math.floor(window.innerWidth * realToCSSPixels);
         displayHeight = Math.floor(window.innerHeight * realToCSSPixels);
 
@@ -55,5 +73,6 @@ $(document).on('ready', function () {
         camera.updateProjectionMatrix();
     });
 
-    render();
+    setTimeout(render, 1000);
 });
+

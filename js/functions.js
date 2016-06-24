@@ -1,29 +1,22 @@
-// browser detection
-var isOpera = !!window.opera || navigator.userAgent.indexOf(' OPR/') >= 0; // Opera 8.0+ (UA detection to detect Blink/v8-powered Opera)
-var isFirefox = typeof InstallTrigger !== 'undefined'; // Firefox 1.0+
-var isSafari = Object.prototype.toString.call(window.HTMLElement).indexOf('Constructor') > 0; // At least Safari 3+: "[object HTMLElementConstructor]"
-var isChrome = !!window.chrome && !isOpera; // Chrome 1+
-var isIE = /*@cc_on!@*/false || !!document.documentMode; // At least IE6
+// returns "height" data from any RGB (color) image (dimensions must be power of 2) for every pixel
+// dark colors = high elevation, bright colors = low elevation
+function getHeightDataFromImage(img) {
+    var canvas = document.createElement('canvas');
+    canvas.width = img.width;
+    canvas.height = img.height;
 
-// determine if the browser has a webkit core
-function isWebkit() {
-    var ua = window.navigator.userAgent;
-    var msie = ua.indexOf("MSIE ");
-    var ff = ua.toLowerCase().indexOf("firefox");
+    var context = canvas.getContext('2d');
+    context.drawImage(img, 0, 0);
+    var imgData = context.getImageData(0, 0, img.width, img.height);
+    var rgbPixels = imgData.data;
 
-    if (ff > 0 || msie > 0 || !!navigator.userAgent.match(/Trident.*rv\:11\./)) {
-        return false;
-    } else {
-        return true;
+    var heightData = new Float32Array(img.width * img.height);
+
+    var j = 0;
+    for (var i = 0; i < rgbPixels.length; i += 4) {
+        var all = rgbPixels[i] + rgbPixels[i + 1] + rgbPixels[i + 2];   // add up R, G and B components
+        heightData[j++] = all / 3;
     }
-}
 
-// determine if the parameter is numeric
-function isNumber(n) {
-    return !isNaN(parseFloat(n)) && isFinite(n);
-}
-
-// determine if element has parent with such selector
-$.fn.hasParent = function (e) {
-    return !!$(this).closest(e).length;
+    return heightData;
 }
