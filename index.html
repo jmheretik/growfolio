@@ -5,18 +5,14 @@
 	<meta charset="utf-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title></title>
+	<title>Growfolio</title>
 
 	<link rel="icon" href="favicon.ico" />
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" />
-	<!-- <link rel="stylesheet" href="./fonts/custom-webfont/stylesheet.css" /> -->
 	<link rel="stylesheet" href="./css/style.css" />
 
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-	<!--<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/TweenLite.min.js"></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/jquery.gsap.min.js"></script>
-	<script src="http://cdnjs.cloudflare.com/ajax/libs/gsap/latest/plugins/CSSPlugin.min.js"></script>-->
 
 	<script src="./js/three.js"></script>
 	<script src="./js/three-orbitcontrols.js"></script>
@@ -25,15 +21,35 @@
 </head>
 
 <body>
-	<div id="container">
-		<div id="controls">
-			<input type="checkbox" id="wireframe"> wireframe<br>
-		</div>
+	<video id="video" style="display:none">
+		<source src="./videos/1.m4v" type="video/mp4"></source>
+		<source src="./videos/1.webm" type="video/webm"></source>
+	</video>
+	<div id="controls-main" class="box">
+		<button id="reset">Reset camera</button><br /><br />
+		<input type="checkbox" id="rotate"> Auto rotate <br />
+		<input type="checkbox" id="wire"> Wireframe <br />
+		<input type="checkbox" id="invert"> Invert colors <br />
+		<input type="checkbox" id="grayscale"> Grayscale <br /><br /> 
+		Depth <br /><input type="range" id="depth" value="30">
 	</div>
+	<div id="controls-download" class="box">
+		<button><a id="download">Download image</a></button>
+	</div>
+	<div id="controls-upload" class="box">
+		WANT TO TRY WITH YOUR OWN IMAGE? <br /><br /> By pressing Ctrl+V or Cmd+V you can paste any image from your clipboard to this website.
+	</div>
+	<div id="controls-frame" class="box">
+		<!--<iframe src="http://robertfinkei.com" />-->
+		experimental: <button id="videoButton">Play video</button>	
+	</div>
+	<div id="controls-progress" class="box">
+		<span id="progress-bar"></span>
+		<a href="http://roberfinkei.com">http://robertfinkei.com</a><span id="progress-text"> - next image will load in 30 seconds...</span>
+	</div>
+	<div id="container"></div>
 
-	<script src="./js/functions.js"></script>
-	<script src="./js/loadFirst.js?ver=1.0"></script>
-	<script src="./js/loadLast.js"></script>
+	<script src="./js/loadFirst.js"></script>
 </body>
 
 </html>
