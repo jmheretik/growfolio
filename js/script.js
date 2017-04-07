@@ -45,6 +45,7 @@ $(document).on('ready', function () {
     initializeEvents();
 
     var scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x00ff00);
 
     // front light
     var light = new THREE.PointLight(0xffffff, 1, 0);
