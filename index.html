@@ -7,24 +7,19 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<title>Growfolio</title>
 
-	<link rel="icon" href="favicon.ico" />
+	<!-- <link rel="icon" href="favicon.ico" /> -->
 
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" />
 	<link rel="stylesheet" href="./css/style.css" />
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
-
-	<script src="./js/three.js"></script>
-	<script src="./js/three-orbitcontrols.js"></script>
-	<script src="./js/stackBlur.js"></script>
-
 </head>
 
 <body>
+
 	<video id="video" style="display:none">
 		<source src="./videos/1.m4v" type="video/mp4"></source>
 		<source src="./videos/1.webm" type="video/webm"></source>
 	</video>
+
 	<div id="controls-main" class="box">
 		<button id="reset">Reset camera</button><br /><br />
 		<input type="checkbox" id="rotate"> Auto rotate <br />
@@ -34,23 +29,33 @@
 		<input type="radio" name="filter" id="grayscale"> Grayscale <br /><br /> 
 		Depth <br /><input type="range" id="depth" value="30">
 	</div>
+
 	<div id="controls-download" class="box">
 		<button><a id="download">Download image</a></button>
 	</div>
+
 	<div id="controls-upload" class="box">
 		WANT TO TRY WITH YOUR OWN IMAGE? <br /><br /> By pressing Ctrl+V or Cmd+V you can paste any image from your clipboard to this website.
 	</div>
+
 	<div id="controls-frame" class="box">
 		<!--<iframe src="http://robertfinkei.com" />-->
 		experimental: <button id="videoButton">Play video</button>	
 	</div>
+
 	<div id="controls-progress" class="box">
 		<span id="progress-bar"></span>
 		<a href="http://robertfinkei.com">http://robertfinkei.com</a><span id="progress-text"> - next image will load in 30 seconds...</span>
 	</div>
-	<div id="container"></div>
 
-	<script src="./js/script.js"></script>
+	<div id="three-js-container"></div>
+
+	<script src="./js/three.js"></script>
+	<script src="./js/three.OrbitControls.js"></script>
+	<script src="./js/stackBlur.js"></script>
+	<script src="./js/growfolio.js"></script>
+	<script src="./js/growfolio.three.js"></script>
+	<script src="./js/growfolio.events.js"></script>
 </body>
 
 </html>
