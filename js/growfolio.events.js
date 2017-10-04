@@ -12,6 +12,8 @@ Growfolio.Events = (function() {
     var _invertRadio = document.getElementById("invert");
     var _grayscaleRadio = document.getElementById("grayscale");
     var _depthSlider = document.getElementById("depth");
+    var _smoothSlider = document.getElementById("smooth");
+    var _qualitySlider = document.getElementById("quality");
     var _progressText = document.getElementById("progress-text");
     var _progressBar = document.getElementById("progress-bar");
 
@@ -93,7 +95,9 @@ Growfolio.Events = (function() {
 
     return {
 
-        getDepth: function() { return (_depthSlider.value - 50) / 250; },
+        getDepth: function() { return _depthSlider.value; },
+        getSmooth: function() { return _smoothSlider.value; },
+        getQuality: function() { return _qualitySlider.value; },
 
         isAutoRotate: function() { return _rotateCheckBox.checked; },
         isWireFrame: function() { return _wireCheckBox.checked; },
@@ -146,6 +150,10 @@ Growfolio.Events = (function() {
             });
 
             _depthSlider.addEventListener('input', Growfolio.Three.updateDepth);
+
+            _smoothSlider.addEventListener('input', Growfolio.Three.updateDepth);
+            
+            _qualitySlider.addEventListener('input', Growfolio.Three.updateQuality);
 
             _normalRadio.addEventListener('change', Growfolio.Three.updateTexture);
 

@@ -14,9 +14,10 @@ Growfolio.Three = (function() {
     var _context = _canvas.getContext('2d');
 
     // mesh manipulation
-    var _heightData, _geometryWidth, _geometryHeight;
+    var _heightData, _widthSegments, _heightSegments;
     var _geometryCanvas = document.createElement('canvas');
     var _geometryContext = _geometryCanvas.getContext('2d');
+    var _qualityValues = [16, 32, 64, 128, 256, 512];
 
     // take into account High DPI displays
     var _realToCSSPixels = window.devicePixelRatio || 1;
@@ -73,6 +74,8 @@ Growfolio.Three = (function() {
         _canvas.width = THREE.Math.nearestPowerOfTwo(_image.width);
         _canvas.height = THREE.Math.nearestPowerOfTwo(_image.height);
         _context.drawImage(_image, 0, 0, _canvas.width, _canvas.height);
+        _geometryCanvas.width = _canvas.width;
+        _geometryCanvas.height = _canvas.height;
 
         // attach current canvas as a plane texture
         _texture = new THREE.Texture(_canvas);
@@ -82,14 +85,19 @@ Growfolio.Three = (function() {
     // generate plane geometry in smaller dimensions than the picture
     var _prepareGeometry = function() {
 
-        var divider = _canvas.width >= _canvas.height ? _canvas.width / 128 : _canvas.height / 128;
+        var quality = _qualityValues[Growfolio.Events.getQuality()];
 
-        _geometryWidth = _canvas.width / divider;
-        _geometryHeight = _canvas.height / divider;
-        _geometryCanvas.width = _geometryWidth;
-        _geometryCanvas.height = _geometryHeight;
+        if (quality < _canvas.width && quality < _canvas.height) {
+            var divider = _canvas.width >= _canvas.height ? _canvas.width / quality : _canvas.height / quality;
 
-        _plane.geometry = new THREE.PlaneGeometry(_geometryWidth, _geometryHeight, _geometryWidth - 1, _geometryHeight - 1);
+            _widthSegments = _canvas.width / divider;
+            _heightSegments = _canvas.height / divider;
+        } else {
+            _widthSegments = _canvas.width;
+            _heightSegments = _canvas.height;
+        }
+
+        _plane.geometry = new THREE.PlaneGeometry(_canvas.width, _canvas.height, _widthSegments - 1, _heightSegments - 1);
     };
 
     // update "height data" for the current image
@@ -97,26 +105,29 @@ Growfolio.Three = (function() {
     var _updateHeightData = function() {
 
         // draw current image to geometryCanvas and scale it down
-        _geometryContext.drawImage(_canvas, 0, 0, _geometryWidth, _geometryHeight);
+        _geometryContext.drawImage(_canvas, 0, 0, _widthSegments, _heightSegments);
 
         // blur image to remove noise (remove confusing local maximas in resulting plane)
-        stackBlurCanvasRGB(_geometryCanvas, 0, 0, _geometryWidth, _geometryHeight, 1);
+        stackBlurCanvasRGB(_geometryCanvas, 0, 0, _widthSegments, _heightSegments, Growfolio.Events.getSmooth());
 
         // compute height data
-        var imageData = _geometryContext.getImageData(0, 0, _geometryWidth, _geometryHeight);
-        _heightData = new Uint8ClampedArray((_geometryWidth + 4 / 3) * (_geometryHeight + 4 / 3));
+        var imageData = _geometryContext.getImageData(0, 0, _widthSegments, _heightSegments);
+        _heightData = new Uint8ClampedArray((_widthSegments + 4 / 3) * (_heightSegments + 4 / 3));
 
         var j = 0;
         for (var i = 0; i < imageData.data.length; i += 4) {
             var all = imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]; // add up RGB components
-            _heightData[j++] = all / 3;
+            _heightData[j++] = (all / 3) - 128;
         }
     };
 
-    // manipulate height of vertices according to heightData
+    // calculate height map and move the vertices according to it
     var _updateDepth = function() {
 
-        var depth = Growfolio.Events.getDepth();
+        _updateHeightData();
+
+        // normalize to range [-5, 5]
+        var depth = (Growfolio.Events.getDepth() - 50) / 10;
 
         // modify the height of individual vertices
         for (var i = 0; i < _plane.geometry.vertices.length; i++) {
@@ -144,8 +155,7 @@ Growfolio.Three = (function() {
         _prepareGeometry(); // generate plane
 
         _updateTexture(); // reload texture and apply current filter
-        _updateHeightData(); // calculate height map
-        _updateDepth(); // move the vertices according to the height map
+        _updateDepth(); // calculate height map and move the vertices according to it
 
         // start rendering loop
         if (!_rendering) {
@@ -155,11 +165,17 @@ Growfolio.Three = (function() {
         }
     };
 
+    // generate new plane and update its height map and vertices
+    var _updateQuality = function() {
+
+        _prepareGeometry();
+        _updateDepth();
+    };
+
     // extract current frame from a playing video and set it as a current image
     var _drawVideoFrame = function() {
 
         _updateTexture();
-        _updateHeightData();
         _updateDepth();
     };
 
@@ -197,6 +213,7 @@ Growfolio.Three = (function() {
 
         updateTexture: function() { return _updateTexture(); },
         updateDepth: function() { return _updateDepth(); },
+        updateQuality: function() { return _updateQuality(); },
         handleWindowResize: function() { return _handleWindowResize(); },
 
         init: function() {
@@ -208,8 +225,8 @@ Growfolio.Three = (function() {
             _renderer.setSize(_displayWidth, _displayHeight);
             _container.appendChild(_renderer.domElement);
 
-            _camera = new THREE.PerspectiveCamera(75, _displayWidth / _displayHeight, 0.1, 1000);
-            _camera.position.z = 75;
+            _camera = new THREE.PerspectiveCamera(75, _displayWidth / _displayHeight, 0.1, 10000);
+            _camera.position.z = 1000;
 
             // mouse movements
             _controls = new THREE.OrbitControls(_camera, _container);
@@ -219,11 +236,11 @@ Growfolio.Three = (function() {
             _scene.background = new THREE.Color(0x000000);
 
             _frontLight = new THREE.PointLight(0xffffff, 1, 0);
-            _frontLight.position.set(0, 0, 100);
+            _frontLight.position.set(0, 0, 1000);
             _scene.add(_frontLight);
 
             _backLight = new THREE.PointLight(0xffffff, 1, 0);
-            _backLight.position.set(0, 0, -100);
+            _backLight.position.set(0, 0, -1000);
             _scene.add(_backLight);
 
             _plane = new THREE.Mesh();
