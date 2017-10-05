@@ -7,6 +7,7 @@ Growfolio.Events = (function() {
     var _resetButton = document.getElementById("reset");
     var _downloadButton = document.getElementById("download");
     var _rotateCheckBox = document.getElementById("rotate");
+    var _normalsCheckBox = document.getElementById("normals");
     var _wireCheckBox = document.getElementById("wire");
     var _normalRadio = document.getElementById("normal");
     var _invertRadio = document.getElementById("invert");
@@ -33,7 +34,7 @@ Growfolio.Events = (function() {
 
         _countdown = 30;
         _barWidth = 0;
-        
+
         _currentImage++;
         Growfolio.Three.getImage().src = "./images/" + _currentImage + ".png";
     }, 30000);
@@ -59,13 +60,6 @@ Growfolio.Events = (function() {
 
     // when pasted image is loaded
     var _userImageLoaded = function(event) {
-
-        // dialog window
-        if (confirm('Display image with computed normals?')) {
-            _normals = true;
-        } else {
-            _normals = false;
-        }
 
         _cancelCountDown();
 
@@ -123,6 +117,12 @@ Growfolio.Events = (function() {
                 Growfolio.Three.getControls().autoRotate = !Growfolio.Three.getControls().autoRotate;
             });
 
+            _normalsCheckBox.addEventListener('change', function() {
+
+                _normals = !_normals;
+                Growfolio.Three.updateNormals();
+            });
+
             // download currently rendered image
             _downloadButton.addEventListener('click', function() {
 
@@ -152,7 +152,7 @@ Growfolio.Events = (function() {
             _depthSlider.addEventListener('input', Growfolio.Three.updateDepth);
 
             _smoothSlider.addEventListener('input', Growfolio.Three.updateDepth);
-            
+
             _qualitySlider.addEventListener('input', Growfolio.Three.updateQuality);
 
             _normalRadio.addEventListener('change', Growfolio.Three.updateTexture);

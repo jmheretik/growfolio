@@ -70,6 +70,13 @@ Growfolio.Three = (function() {
     // resize + prepare canvas and texture of just loaded new picture
     var _prepareImage = function() {
 
+        // shiny or normal material (if user chose 'Yes' to compute the normals while pasting his image = use shiny)
+        if (Growfolio.Events.isNormals()) {
+            _plane.material = new THREE.MeshPhongMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
+        } else {
+            _plane.material = new THREE.MeshBasicMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
+        }
+
         // resize current image to one with dimensions of power of 2 so it can be used as a texture
         _canvas.width = THREE.Math.nearestPowerOfTwo(_image.width);
         _canvas.height = THREE.Math.nearestPowerOfTwo(_image.height);
@@ -117,7 +124,7 @@ Growfolio.Three = (function() {
         var j = 0;
         for (var i = 0; i < imageData.data.length; i += 4) {
             var all = imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]; // add up RGB components
-            _heightData[j++] = (all / 3) - 128;
+            _heightData[j++] = all / 3;
         }
     };
 
@@ -144,13 +151,6 @@ Growfolio.Three = (function() {
     // when new image is fully loaded, e.g. when _image.src changes
     var _imageLoaded = function() {
 
-        // shiny or normal material (if user chose 'Yes' to compute the normals while pasting his image = use shiny)
-        if (Growfolio.Events.isNormals()) {
-            _plane.material = new THREE.MeshPhongMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
-        } else {
-            _plane.material = new THREE.MeshBasicMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
-        }
-
         _prepareImage(); // resize + prepare canvas and texture
         _prepareGeometry(); // generate plane
 
@@ -163,6 +163,12 @@ Growfolio.Three = (function() {
 
             _render();
         }
+    };
+
+    var _updateNormals = function() {
+        _prepareImage();
+        _updateTexture();
+        _updateDepth();
     };
 
     // generate new plane and update its height map and vertices
@@ -214,6 +220,7 @@ Growfolio.Three = (function() {
         updateTexture: function() { return _updateTexture(); },
         updateDepth: function() { return _updateDepth(); },
         updateQuality: function() { return _updateQuality(); },
+        updateNormals: function() { return _updateNormals(); },
         handleWindowResize: function() { return _handleWindowResize(); },
 
         init: function() {
