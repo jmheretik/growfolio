@@ -71,7 +71,7 @@ Growfolio.Three = (function() {
 
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
 
-        if (_settings.videoPlaying || _settings.videoStarted) {
+        if (_settings.videoStarted) {
             _context.drawImage(_video, 0, 0, _canvas.width, _canvas.height);
         } else {
             _context.drawImage(_image, 0, 0, _canvas.width, _canvas.height);
@@ -95,13 +95,6 @@ Growfolio.Three = (function() {
         } else {
             _plane.material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
         }
-
-        // resize current image to one with dimensions of power of 2 so it can be used as a texture
-        _canvas.width = THREE.Math.nearestPowerOfTwo(_image.width);
-        _canvas.height = THREE.Math.nearestPowerOfTwo(_image.height);
-        _context.drawImage(_image, 0, 0, _canvas.width, _canvas.height);
-        _geometryCanvas.width = _canvas.width;
-        _geometryCanvas.height = _canvas.height;
 
         // attach current canvas as a plane texture
         _texture = new THREE.Texture(_canvas);
@@ -168,6 +161,13 @@ Growfolio.Three = (function() {
 
     // when new image is fully loaded, e.g. when _image.src changes
     var _imageLoaded = function() {
+
+        // resize current image to one with dimensions of power of 2 so it can be used as a texture
+        _canvas.width = THREE.Math.nearestPowerOfTwo(_image.width);
+        _canvas.height = THREE.Math.nearestPowerOfTwo(_image.height);
+        _context.drawImage(_image, 0, 0, _canvas.width, _canvas.height);
+        _geometryCanvas.width = _canvas.width;
+        _geometryCanvas.height = _canvas.height;
 
         _updateMaterial(); // resize + prepare canvas and texture
         _updateGeometry(); // generate plane
