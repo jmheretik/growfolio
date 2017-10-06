@@ -18,12 +18,9 @@ Growfolio.Events = (function() {
     var _progressText = document.getElementById("progress-text");
     var _progressBar = document.getElementById("progress-bar");
 
-    var _videoPlaying = false;
-    var _videoStarted = false;
     var _currentImage = 1;
     var _countdown = 30;
     var _barWidth = 0;
-    var _normals;
 
     // change image every 30 seconds
     var _changeInterval = setInterval(function() {
@@ -72,11 +69,12 @@ Growfolio.Events = (function() {
         var blob = null;
         var items = (event.clipboardData || event.originalEvent.clipboardData).items;
 
-        for (var i = 0; i < items.length; i++) {
-            if (items[i].type.indexOf("image") === 0) {
-                blob = items[i].getAsFile();
+        items.forEach(function(item) {
+
+            if (item.type.indexOf("image") === 0) {
+                blob = item.getAsFile();
             }
-        }
+        });
 
         // load image if there is a pasted image
         if (blob !== null) {
@@ -89,39 +87,10 @@ Growfolio.Events = (function() {
 
     return {
 
-        getDepth: function() { return _depthSlider.value; },
-        getSmooth: function() { return _smoothSlider.value; },
-        getQuality: function() { return _qualitySlider.value; },
-
-        isAutoRotate: function() { return _rotateCheckBox.checked; },
-        isWireFrame: function() { return _wireCheckBox.checked; },
-        isInverseColors: function() { return _invertRadio.checked; },
-        isGrayscaleColors: function() { return _grayscaleRadio.checked; },
-        isNormals: function() { return _normals; },
-        isVideoStarted: function() { return _videoStarted; },
-        isVideoPlaying: function() { return _videoPlaying; },
-
         init: function() {
 
-            // stop rotating the camera and move it to initial position
-            _resetButton.addEventListener('click', function() {
-
-                _rotateCheckBox.checked = false;
-
-                Growfolio.Three.getControls().reset();
-                Growfolio.Three.getControls().autoRotate = false;
-            });
-
-            _rotateCheckBox.addEventListener('change', function() {
-
-                Growfolio.Three.getControls().autoRotate = !Growfolio.Three.getControls().autoRotate;
-            });
-
-            _normalsCheckBox.addEventListener('change', function() {
-
-                _normals = !_normals;
-                Growfolio.Three.updateNormals();
-            });
+            window.addEventListener('paste', _userImagePasted);
+            window.addEventListener('resize', Growfolio.Three.updateWindow);
 
             // download currently rendered image
             _downloadButton.addEventListener('click', function() {
@@ -133,14 +102,31 @@ Growfolio.Events = (function() {
                 this.href = Growfolio.Three.getRenderer().domElement.toDataURL();
             });
 
+            // stop rotating the camera and move it to initial position
+            _resetButton.addEventListener('click', function() {
+
+                _rotateCheckBox.checked = false;
+
+                Growfolio.Three.getControls().autoRotate = false;
+                Growfolio.Three.getControls().reset();
+            });
+
+            _rotateCheckBox.addEventListener('change', function() {
+
+                Growfolio.Three.getControls().autoRotate = !Growfolio.Three.getControls().autoRotate;
+            });
+
+            // get Growfolio.Three settings
+            var settings = Growfolio.Three.getSettings();
+
             _videoButton.addEventListener('click', function() {
 
-                _videoStarted = true;
-                _videoPlaying = !_videoPlaying;
+                settings.videoStarted = true;
+                settings.videoPlaying = !settings.videoPlaying;
 
                 _cancelCountDown();
 
-                if (_videoPlaying) {
+                if (settings.videoPlaying) {
                     this.innerHTML = "Pause video";
                     Growfolio.Three.getVideo().play();
                 } else {
@@ -149,21 +135,54 @@ Growfolio.Events = (function() {
                 }
             });
 
-            _depthSlider.addEventListener('input', Growfolio.Three.updateDepth);
+            _wireCheckBox.addEventListener('change', function() {
+                settings.wireframe = this.checked;
+            });
 
-            _smoothSlider.addEventListener('input', Growfolio.Three.updateDepth);
+            _normalsCheckBox.addEventListener('change', function() {
 
-            _qualitySlider.addEventListener('input', Growfolio.Three.updateQuality);
+                settings.normals = this.checked;
+                Growfolio.Three.updateNormals();
+            });
 
-            _normalRadio.addEventListener('change', Growfolio.Three.updateTexture);
+            _depthSlider.addEventListener('input', function() {
 
-            _invertRadio.addEventListener('change', Growfolio.Three.updateTexture);
+                settings.depth = this.value;
+                Growfolio.Three.updateDepth();
+            });
 
-            _grayscaleRadio.addEventListener('change', Growfolio.Three.updateTexture);
+            _smoothSlider.addEventListener('input', function() {
 
-            window.addEventListener('resize', Growfolio.Three.handleWindowResize);
+                settings.smooth = this.value;
+                Growfolio.Three.updateDepth();
+            });
 
-            window.addEventListener('paste', _userImagePasted);
+            _qualitySlider.addEventListener('input', function() {
+
+                settings.quality = this.value;
+                Growfolio.Three.updateQuality();
+            });
+
+            _normalRadio.addEventListener('change', function() {
+
+                settings.inverse = false;
+                settings.grayscale = false;
+                Growfolio.Three.updateTexture();
+            });
+
+            _invertRadio.addEventListener('change', function() {
+
+                settings.inverse = true;
+                settings.grayscale = false;
+                Growfolio.Three.updateTexture();
+            });
+
+            _grayscaleRadio.addEventListener('change', function() {
+
+                settings.inverse = false;
+                settings.grayscale = true;
+                Growfolio.Three.updateTexture();
+            });
         }
     }
 

@@ -28,53 +28,72 @@ Growfolio.Three = (function() {
     var _renderer, _camera, _controls, _scene, _frontLight, _backLight, _plane, _texture;
     var _rendering = false;
 
+    var _settings = {
+        "normals": false,
+        "wireframe": false,
+        "inverse": false,
+        "grayscale": false,
+        "depth": 30,
+        "smooth": 1,
+        "quality": 3,
+        "videoStarted": false,
+        "videoPlaying": false
+    };
+
+    // invert colors
+    var _invert = function() {
+
+        _context.globalCompositeOperation = 'difference';
+        _context.fillStyle = 'white';
+        _context.fillRect(0, 0, _canvas.width, _canvas.height);
+    };
+
+    // convert colors to grayscale
+    var _grayscale = function() {
+
+        var imgData = _context.getImageData(0, 0, _canvas.width, _canvas.height);
+
+        for (var i = 0; i < imgData.data.length; i += 4) {
+
+            // weighted conversion to grayscale (preserves luminance)
+            var avg = 0.34 * imgData.data[i] + 0.5 * imgData.data[i + 1] + 0.16 * imgData.data[i + 2];
+
+            imgData.data[i] = avg; // red
+            imgData.data[i + 1] = avg; // green
+            imgData.data[i + 2] = avg; // blue
+        }
+
+        _context.putImageData(imgData, 0, 0);
+    };
+
     // reload texture when picture changes or video is playing and apply current filter
     var _updateTexture = function() {
 
         _context.clearRect(0, 0, _canvas.width, _canvas.height);
 
-        if (Growfolio.Events.isVideoPlaying() || Growfolio.Events.isVideoStarted()) {
+        if (_settings.videoPlaying || _settings.videoStarted) {
             _context.drawImage(_video, 0, 0, _canvas.width, _canvas.height);
         } else {
             _context.drawImage(_image, 0, 0, _canvas.width, _canvas.height);
         }
 
-        if (Growfolio.Events.isInverseColors()) {
-
-            // invert colors
-            _context.globalCompositeOperation = 'difference';
-            _context.fillStyle = 'white';
-            _context.fillRect(0, 0, _canvas.width, _canvas.height);
-
-        } else if (Growfolio.Events.isGrayscaleColors()) {
-
-            // convert colors to grayscale
-            var imgData = _context.getImageData(0, 0, _canvas.width, _canvas.height);
-
-            for (var i = 0; i < imgData.data.length; i += 4) {
-
-                // weighted conversion to grayscale (preserves luminance)
-                var avg = 0.34 * imgData.data[i] + 0.5 * imgData.data[i + 1] + 0.16 * imgData.data[i + 2];
-
-                imgData.data[i] = avg; // red
-                imgData.data[i + 1] = avg; // green
-                imgData.data[i + 2] = avg; // blue
-            }
-
-            _context.putImageData(imgData, 0, 0);
+        if (_settings.inverse) {
+            _invert();
+        } else if (_settings.grayscale) {
+            _grayscale();
         }
 
         _plane.material.map.needsUpdate = true;
     };
 
     // resize + prepare canvas and texture of just loaded new picture
-    var _prepareImage = function() {
+    var _updateMaterial = function() {
 
-        // shiny or normal material (if user chose 'Yes' to compute the normals while pasting his image = use shiny)
-        if (Growfolio.Events.isNormals()) {
-            _plane.material = new THREE.MeshPhongMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
+        // shiny or normal material (if user chose to compute normals = use shiny)
+        if (_settings.normals) {
+            _plane.material = new THREE.MeshPhongMaterial({ side: THREE.DoubleSide });
         } else {
-            _plane.material = new THREE.MeshBasicMaterial({ wireframe: Growfolio.Events.isWireFrame(), side: THREE.DoubleSide });
+            _plane.material = new THREE.MeshBasicMaterial({ side: THREE.DoubleSide });
         }
 
         // resize current image to one with dimensions of power of 2 so it can be used as a texture
@@ -87,22 +106,22 @@ Growfolio.Three = (function() {
         // attach current canvas as a plane texture
         _texture = new THREE.Texture(_canvas);
         _plane.material.map = _texture;
+
+        _updateTexture();
     };
 
     // generate plane geometry in smaller dimensions than the picture
-    var _prepareGeometry = function() {
+    var _updateGeometry = function() {
 
-        var quality = _qualityValues[Growfolio.Events.getQuality()];
+        var divider = 1;
+        var quality = _qualityValues[_settings.quality];
 
         if (quality < _canvas.width && quality < _canvas.height) {
-            var divider = _canvas.width >= _canvas.height ? _canvas.width / quality : _canvas.height / quality;
-
-            _widthSegments = _canvas.width / divider;
-            _heightSegments = _canvas.height / divider;
-        } else {
-            _widthSegments = _canvas.width;
-            _heightSegments = _canvas.height;
+            divider = _canvas.width >= _canvas.height ? _canvas.width / quality : _canvas.height / quality;
         }
+
+        _widthSegments = _canvas.width / divider;
+        _heightSegments = _canvas.height / divider;
 
         _plane.geometry = new THREE.PlaneGeometry(_canvas.width, _canvas.height, _widthSegments - 1, _heightSegments - 1);
     };
@@ -115,16 +134,15 @@ Growfolio.Three = (function() {
         _geometryContext.drawImage(_canvas, 0, 0, _widthSegments, _heightSegments);
 
         // blur image to remove noise (remove confusing local maximas in resulting plane)
-        stackBlurCanvasRGB(_geometryCanvas, 0, 0, _widthSegments, _heightSegments, Growfolio.Events.getSmooth());
+        stackBlurCanvasRGB(_geometryCanvas, 0, 0, _widthSegments, _heightSegments, _settings.smooth);
 
         // compute height data
         var imageData = _geometryContext.getImageData(0, 0, _widthSegments, _heightSegments);
         _heightData = new Uint8ClampedArray((_widthSegments + 4 / 3) * (_heightSegments + 4 / 3));
 
-        var j = 0;
-        for (var i = 0; i < imageData.data.length; i += 4) {
-            var all = imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]; // add up RGB components
-            _heightData[j++] = all / 3;
+        for (var i = 0, j = 0; i < imageData.data.length; i += 4, j++) {
+
+            _heightData[j] = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3; // add up RGB components
         }
     };
 
@@ -134,14 +152,14 @@ Growfolio.Three = (function() {
         _updateHeightData();
 
         // normalize to range [-5, 5]
-        var depth = (Growfolio.Events.getDepth() - 50) / 10;
+        var depth = (_settings.depth - 50) / 10;
 
         // modify the height of individual vertices
         for (var i = 0; i < _plane.geometry.vertices.length; i++) {
             _plane.geometry.vertices[i].z = _heightData[i] * depth;
         }
 
-        if (Growfolio.Events.isNormals()) {
+        if (_settings.normals) {
             _plane.geometry.computeVertexNormals();
         }
 
@@ -151,10 +169,8 @@ Growfolio.Three = (function() {
     // when new image is fully loaded, e.g. when _image.src changes
     var _imageLoaded = function() {
 
-        _prepareImage(); // resize + prepare canvas and texture
-        _prepareGeometry(); // generate plane
-
-        _updateTexture(); // reload texture and apply current filter
+        _updateMaterial(); // resize + prepare canvas and texture
+        _updateGeometry(); // generate plane
         _updateDepth(); // calculate height map and move the vertices according to it
 
         // start rendering loop
@@ -163,19 +179,6 @@ Growfolio.Three = (function() {
 
             _render();
         }
-    };
-
-    var _updateNormals = function() {
-        _prepareImage();
-        _updateTexture();
-        _updateDepth();
-    };
-
-    // generate new plane and update its height map and vertices
-    var _updateQuality = function() {
-
-        _prepareGeometry();
-        _updateDepth();
     };
 
     // extract current frame from a playing video and set it as a current image
@@ -190,9 +193,9 @@ Growfolio.Three = (function() {
 
         requestAnimationFrame(_render);
 
-        _plane.material.wireframe = Growfolio.Events.isWireFrame();
+        _plane.material.wireframe = _settings.wireframe;
 
-        if (Growfolio.Events.isVideoPlaying()) {
+        if (_settings.videoPlaying) {
             _drawVideoFrame();
         }
 
@@ -201,7 +204,7 @@ Growfolio.Three = (function() {
     };
 
     // recompute display width and height and set camera accordingly
-    var _handleWindowResize = function() {
+    var _updateWindow = function() {
         _displayWidth = Math.floor(window.innerWidth * _realToCSSPixels);
         _displayHeight = Math.floor(window.innerHeight * _realToCSSPixels);
 
@@ -216,12 +219,22 @@ Growfolio.Three = (function() {
         getControls: function() { return _controls; },
         getRenderer: function() { return _renderer; },
         getVideo: function() { return _video; },
+        getSettings: function() { return _settings; },
 
-        updateTexture: function() { return _updateTexture(); },
-        updateDepth: function() { return _updateDepth(); },
-        updateQuality: function() { return _updateQuality(); },
-        updateNormals: function() { return _updateNormals(); },
-        handleWindowResize: function() { return _handleWindowResize(); },
+        updateTexture: function() { _updateTexture(); },
+        updateDepth: function() { _updateDepth(); },
+        updateWindow: function() { _updateWindow(); },
+
+        // generate new plane and update its height map and vertices
+        updateQuality: function() {
+            _updateGeometry();
+            _updateDepth();
+        },
+
+        updateNormals: function() {
+            _updateMaterial();
+            _updateDepth();
+        },
 
         init: function() {
 
@@ -237,7 +250,6 @@ Growfolio.Three = (function() {
 
             // mouse movements
             _controls = new THREE.OrbitControls(_camera, _container);
-            _controls.autoRotate = Growfolio.Events.isAutoRotate();
 
             _scene = new THREE.Scene();
             _scene.background = new THREE.Color(0x000000);
