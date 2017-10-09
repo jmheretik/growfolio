@@ -25,54 +25,124 @@ canvas {
 	z-index: 10;
 	background-color: rgba(0, 0, 0, 0.5);
 	padding: 10px;
+	border: 1px solid white;
+	border-style: dotted;
+	/* mix-blend-mode: difference; */
 }
 
-#controls-main {
+.controls-main {
     top: 20px;
     left: 20px;
 }
 
-#controls-download {
-    bottom: 40px;
-    left: 20px;
+#reset {
+	width: 100%;
 }
 
-#controls-upload {
-    bottom: 40px;
-    right: 20px;
-	width: 200px;
-	text-align: center;
+.controls-download {
+	text-align: right;
+	display: block;
 }
 
-#controls-frame {
-    top: 20px;
-    right: 20px;
-}
-
-/*#controls-frame iframe {
+#dropzone {
+	position: absolute;
+	left:0;
+	top:0;
+	display: flex;
+    align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 30px;
 	width: 100%;
 	height: 100%;
-}*/
+	z-index: 100;
+	background: rgba(0, 0, 0, 0.9);
+	border: 20px solid black;
+	outline: 2px solid white;
+    outline-offset: -20px;
+    outline-style: dashed;
+	visibility: hidden;
+}
 
-#controls-progress {
-    bottom: 0px;
-    left: 0px;
+.controls-upload {
+	top: 20px;
+    right: 20px;
+}
+
+.controls-upload input {
+	display: none;
+}
+
+.controls-upload label {
+	cursor: pointer;
+}
+
+#upload {
+	pointer-events: none;
+}
+
+.controls-video {
+	position: absolute;
+	bottom: 80px;
+	right: 20px;
+}
+
+/* .controls-frame {
+    top: 20px;
+    right: 20px;
+}
+
+.controls-frame iframe {
 	width: 100%;
+	height: 100%;
+} */
+
+.controls-nav {
+	bottom: 20px;
+	width: 40px;
 	height: 40px;
-	padding-left: 30px;
+	text-align: center;
+	cursor: pointer;
+}
+
+#prev-website {
+	left: 20px;
+}
+
+#next-website {
+	right: 20px;
+}
+
+.controls-website {
+    bottom: 20px;
+    left: 60px;
+	width: calc(100% - 120px);
+	height: 40px;
+}
+
+#website-text {
+	left: 200px;
+    position: absolute;
+	font-weight: normal;
 }
 
 #progress-bar {
     display: inline-block;
-    height: 40px;
+    height: 3px;
     position: absolute;
-    bottom: 0px;
+    bottom: -1.5px;
     left: 0px;
-    background-color: #6d6d6d;
-    z-index: -5;
+    background-color: white;
+	z-index: -5;
+	animation: progress 30s linear infinite;
 }
 
-#controls-progress a:link, #controls-progress a:visited, #controls-progress a:hover, #controls-progress a:active{
+@keyframes progress {
+    from {width: 0%;}
+    to {width: 100%;}
+}
+
+.controls-website a:link, .controls-website a:visited, .controls-website a:hover, .controls-website a:active{
 	color: white;
 }
 

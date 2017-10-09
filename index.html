@@ -20,7 +20,7 @@
 		<source src="./videos/1.webm" type="video/webm"></source>
 	</video>
 
-	<div id="controls-main" class="box">
+	<div class="box controls-main">
 		<button id="reset">Reset camera</button><br /><br />
 		<input type="checkbox" id="rotate"> Auto rotate <br />
 		<input type="checkbox" id="normals"> Compute normals <br />
@@ -33,23 +33,32 @@
 		Quality <br /><input type="range" min="0" max="5" step="1" id="quality" value="3"><br />
 	</div>
 
-	<div id="controls-download" class="box">
-		<button><a id="download">Download image</a></button>
+	<div class="box controls-video">
+		experimental: <button id="videoButton">Play video</button>			
 	</div>
 
-	<div id="controls-upload" class="box">
-		WANT TO TRY WITH YOUR OWN IMAGE? <br /><br /> By pressing Ctrl+V or Cmd+V you can paste any image from your clipboard to this website.
+	<div id="dropzone">Drop anywhere</div>
+
+	<div class="box controls-upload">
+		<input id="uploaded-file" name="uploaded-file" type="file">
+		Drop, paste or <label for="uploaded-file"><button id="upload">upload</button></label> your own image and play around ...
+		<br />
+		<br />
+		<span class="controls-download">... anytime you can <button><a id="download">download</a></button> the result.</span>
 	</div>
 
-	<div id="controls-frame" class="box">
-		<!--<iframe src="http://robertfinkei.com" />-->
-		experimental: <button id="videoButton">Play video</button>	
-	</div>
+	<!-- <div class="box controls-frame">
+		<iframe src="http://robertfinkei.com" />
+	</div> -->
 
-	<div id="controls-progress" class="box">
+	<div  id="prev-website" class="box controls-nav"><</div>
+
+	<div class="box controls-website">
 		<span id="progress-bar"></span>
-		<a href="http://robertfinkei.com">http://robertfinkei.com</a><span id="progress-text"> - next image will load in 30 seconds...</span>
+		<a id="website-name" target="_blank"></a><span id="website-text"></span>
 	</div>
+
+	<div id="next-website" class="box controls-nav">></div>
 
 	<div id="three-js-container"></div>
 

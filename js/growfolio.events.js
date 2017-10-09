@@ -1,4 +1,4 @@
-/// <reference path="growfolio.three.js" />
+﻿/// <reference path="growfolio.three.js" />
 
 Growfolio.Events = (function() {
 
@@ -6,6 +6,8 @@ Growfolio.Events = (function() {
     var _videoButton = document.getElementById("videoButton");
     var _resetButton = document.getElementById("reset");
     var _downloadButton = document.getElementById("download");
+    var _uploadedFile = document.getElementById("uploaded-file");
+    var _dropzone = document.getElementById('dropzone');
     var _rotateCheckBox = document.getElementById("rotate");
     var _normalsCheckBox = document.getElementById("normals");
     var _wireCheckBox = document.getElementById("wire");
@@ -15,82 +17,166 @@ Growfolio.Events = (function() {
     var _depthSlider = document.getElementById("depth");
     var _smoothSlider = document.getElementById("smooth");
     var _qualitySlider = document.getElementById("quality");
-    var _progressText = document.getElementById("progress-text");
+    var _websiteName = document.getElementById("website-name");
+    var _websiteText = document.getElementById("website-text");
     var _progressBar = document.getElementById("progress-bar");
+    var _prevWebsiteButton = document.getElementById("prev-website");
+    var _nextWebsiteButton = document.getElementById("next-website");
 
-    var _currentImage = 1;
-    var _countdown = 30;
-    var _barWidth = 0;
+    var _countDownInterval;
+    var _countDownInSeconds = 30;
 
-    // change image every 30 seconds
-    var _changeInterval = setInterval(function() {
+    // array of available websites
+    var _websites = [{
+        "name": "robertfinkei.com",
+        "url": "http://robertfinkei.com",
+        "text": "3-4/2015 - portfolio (design Robert Finkei)"
+    }, {
+        "name": "Exhibition package",
+        "url": "http://medo.robertfinkei.com/exhibitionpackage/",
+        "text": "6/2015 - implementation of bachelor thesis (design Robert Finkei)"
+    }, {
+        "name": "Escape from Modernism",
+        "url": "http://medo.robertfinkei.com/barbara/",
+        "text": "12/2015 - school project (design Barbara Bártková)"
+    }, {
+        "name": "Sing in Sing out",
+        "url": "http://medo.robertfinkei.com/singinsingout/",
+        "text": "5/2016 - art project (design Robert Finkei)"
+    }, {
+        "name": "illusillus",
+        "url": "http://medo.robertfinkei.com/illusillus/",
+        "text": "9/2016 - art project (design Robert Finkei)"
+    }, {
+        "name": "Slezské písně",
+        "url": "http://slezskepisne.cz/",
+        "text": "06/2017 - implementation of master thesis (design Barbara Bártková)"
+    }];
 
-        if (_currentImage == 3) {
-            _currentImage = 0;
+    // returns index of currently displayed website
+    var _getCurrentWebsiteIndex = function() {
+
+        return _websites.findIndex(w => w.name === _websiteName.innerHTML);
+    };
+
+    // swaps website for the next one in the array or the one at 'index'
+    var _swapWebsite = function(index) {
+
+        if (index === undefined) {
+            index = _getCurrentWebsiteIndex() + 1;
         }
 
-        _countdown = 30;
-        _barWidth = 0;
+        // handle array boundaries
+        if (index === _websites.length) {
+            index = 0;
+        } else if (index === -1) {
+            index = _websites.length - 1;
+        }
 
-        _currentImage++;
-        Growfolio.Three.getImage().src = "./images/" + _currentImage + ".png";
-    }, 30000);
+        // change link and description
+        _websiteName.href = _websites[index].url;
+        _websiteName.innerHTML = _websites[index].name;
+        _websiteText.innerHTML = _websites[index].text;
 
-    // update text and progress bar every second
-    var _countdownInterval = setInterval(function() {
+        // set as current image
+        Growfolio.Three.getImage().src = "./images/" + (index + 1) + ".png";
 
-        _countdown--;
-        _progressText.innerHTML = " - next image will load in " + _countdown + " seconds...";
+        // TODO show video controls only for the 1st website
+        if (index === 0) {
+            document.getElementsByClassName('controls-video')[0].style.visibility = 'visible';
+        } else {
+            document.getElementsByClassName('controls-video')[0].style.visibility = 'hidden';
+        }
+    };
 
-        _barWidth += 3.3333;
-        _progressBar.style.width = _barWidth + "%";
-    }, 1000);
-
-    // cancel countdown if playing video or user pasted own image
+    // cancel countdown automatically changing websites
     var _cancelCountDown = function() {
 
         clearInterval(_countdownInterval);
-        clearInterval(_changeInterval);
-        _progressText.innerHTML = "";
-        _progressBar.style.width = 0;
+
+        _progressBar.style.animation = "none";
     };
 
-    // when pasted image is loaded
-    var _userImageLoaded = function(event) {
+    // load user's image from data blob
+    var _loadImageFromData = function(data) {
 
-        _cancelCountDown();
-
-        Growfolio.Three.getImage().src = event.target.result; // data url
-    };
-
-    // when pasting image from clipboard    
-    var _userImagePasted = function(event) {
-
-        var blob = null;
-        var items = (event.clipboardData || event.originalEvent.clipboardData).items;
-
-        items.forEach(function(item) {
-
-            if (item.type.indexOf("image") === 0) {
-                blob = item.getAsFile();
-            }
-        });
-
-        // load image if there is a pasted image
-        if (blob !== null) {
+        if (data !== null) {
 
             var reader = new FileReader();
-            reader.addEventListener('load', _userImageLoaded);
-            reader.readAsDataURL(blob);
+
+            reader.addEventListener('load', function() {
+
+                _cancelCountDown();
+
+                // set as current image
+                Growfolio.Three.getImage().src = event.target.result; // data url
+            });
+
+            reader.readAsDataURL(data);
         }
+    }
+
+    // when user drops/uploads/pastes an image
+    var _userImageInserted = function(event) {
+
+        var files;
+        var blob = null;
+
+        event.preventDefault();
+
+        if (event.type === "paste") {
+            files = (event.clipboardData || event.originalEvent.clipboardData).files;
+        } else if (event.type === "change") {
+            files = event.target.files;
+        } else if (event.type === "drop") {
+            files = event.dataTransfer.files;
+        }
+
+        for (var i = 0; i < files.length; i++) {
+            if (files[i].type.indexOf("image") === 0) {
+                blob = files[i];
+            }
+        }
+
+        _loadImageFromData(blob);
     };
 
     return {
 
         init: function() {
 
-            window.addEventListener('paste', _userImagePasted);
+            // initial website and image
+            _swapWebsite(0);
+            Growfolio.Three.getImage().src = "./images/1.png";
+
+            // change website every '_countDownInSeconds' seconds
+            _countdownInterval = setInterval(_swapWebsite, _countDownInSeconds * 1000);
+            _progressBar.style.animationDuration = _countDownInSeconds + "s";
+
             window.addEventListener('resize', Growfolio.Three.updateWindow);
+
+            // user inserting image events
+            window.addEventListener('paste', _userImageInserted);
+            _uploadedFile.addEventListener('change', _userImageInserted);
+            _dropzone.addEventListener('drop', _userImageInserted);
+
+            // drag/drop events
+            window.addEventListener('dragenter', function() { _dropzone.style.visibility = 'visible'; });
+            _dropzone.addEventListener('dragover', function(e) { e.preventDefault(); });
+            _dropzone.addEventListener('dragleave', function() { _dropzone.style.visibility = 'hidden'; });
+            _dropzone.addEventListener('drop', function() { _dropzone.style.visibility = 'hidden'; });
+
+            _prevWebsiteButton.addEventListener('click', function() {
+
+                _cancelCountDown();
+                _swapWebsite(_getCurrentWebsiteIndex() - 1);
+            });
+
+            _nextWebsiteButton.addEventListener('click', function() {
+
+                _cancelCountDown();
+                _swapWebsite(_getCurrentWebsiteIndex() + 1);
+            });
 
             // download currently rendered image
             _downloadButton.addEventListener('click', function() {

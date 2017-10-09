@@ -9,7 +9,6 @@ Growfolio.Three = (function() {
 
     // current image and its canvas used for texture
     var _image;
-    var _initialImage = "./images/1.png";
     var _canvas = document.createElement("canvas");
     var _context = _canvas.getContext('2d');
 
@@ -134,7 +133,6 @@ Growfolio.Three = (function() {
         _heightData = new Uint8ClampedArray((_widthSegments + 4 / 3) * (_heightSegments + 4 / 3));
 
         for (var i = 0, j = 0; i < imageData.data.length; i += 4, j++) {
-
             _heightData[j] = (imageData.data[i] + imageData.data[i + 1] + imageData.data[i + 2]) / 3; // add up RGB components
         }
     };
@@ -239,7 +237,6 @@ Growfolio.Three = (function() {
         init: function() {
 
             _image = new Image();
-            _image.src = _initialImage;
 
             _renderer = new THREE.WebGLRenderer({ preserveDrawingBuffer: true });
             _renderer.setSize(_displayWidth, _displayHeight);
