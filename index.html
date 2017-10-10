@@ -2,72 +2,68 @@
 <html lang="en">
 
 <head>
-	<meta charset="utf-8">
-	<meta http-equiv="X-UA-Compatible" content="IE=edge">
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Growfolio</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Growfolio</title>
 
-	<!-- <link rel="icon" href="favicon.ico" /> -->
+    <!-- <link rel="icon" href="favicon.ico" /> -->
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" />
-	<link rel="stylesheet" href="./css/style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/3.0.3/normalize.min.css" />
+    <link rel="stylesheet" href="./css/style.css" />
 </head>
 
 <body>
 
-	<video id="video" style="display:none">
+    <video id="video" style="display:none">
 		<source src="./videos/1.m4v" type="video/mp4"></source>
 		<source src="./videos/1.webm" type="video/webm"></source>
 	</video>
 
-	<div class="box controls-main">
-		<button id="reset">Reset camera</button><br /><br />
-		<input type="checkbox" id="rotate"> Auto rotate <br />
-		<input type="checkbox" id="normals"> Compute normals <br />
-		<input type="checkbox" id="wire"> Wireframe <br /><br />
-		Colors <br /><input type="radio" name="filter" id="normal" checked="checked"> Normal <br />
-		<input type="radio" name="filter" id="invert"> Inverted <br />
-		<input type="radio" name="filter" id="grayscale"> Grayscale <br /><br /> 
-		Depth <br /><input type="range" id="depth" value="30"><br />
-		Smooth <br /><input type="range" min="0" max="10" step="1" id="smooth" value="1"><br />
-		Quality <br /><input type="range" min="0" max="5" step="1" id="quality" value="3"><br />
-	</div>
+    <div class="box controls-main">
+        <button id="reset">Reset camera</button><br /><br />
+        <input type="checkbox" id="rotate"> Auto rotate <br />
+        <input type="checkbox" id="normals"> Compute normals <br />
+        <input type="checkbox" id="wire"> Wireframe <br /><br /> Colors <br /><input type="radio" name="filter" id="normal" checked="checked"> Normal <br />
+        <input type="radio" name="filter" id="invert"> Inverted <br />
+        <input type="radio" name="filter" id="grayscale"> Grayscale <br /><br /> Depth <br /><input type="range" id="depth" value="30"><br /> Smooth <br /><input type="range" min="0" max="10" step="1" id="smooth" value="1"><br /> Quality <br />
+        <input type="range" min="0" max="5" step="1" id="quality" value="3"><br />
+    </div>
 
-	<div class="box controls-video">
-		experimental: <button id="videoButton">Play video</button>			
-	</div>
+    <div class="box controls-video">
+        experimental: <button id="videoButton">Play video</button>
+    </div>
 
-	<div id="dropzone">Drop anywhere</div>
+    <div id="dropzone">Drop anywhere</div>
 
-	<div class="box controls-upload">
-		<input id="uploaded-file" name="uploaded-file" type="file">
-		Drop, paste or <label for="uploaded-file"><button id="upload">upload</button></label> your own image and play around ...
-		<br />
-		<br />
-		<span class="controls-download">... anytime you can <button><a id="download">download</a></button> the result.</span>
-	</div>
+    <div class="box controls-upload">
+        <input id="uploaded-file" name="uploaded-file" type="file"> Drop, paste or <label for="uploaded-file"><button id="upload">upload</button></label> your own image and play around ...
+        <br />
+        <br />
+        <span class="controls-download">... anytime you can <button><a id="download">download</a></button> the result.</span>
+    </div>
 
-	<!-- <div class="box controls-frame">
+    <!-- <div class="box controls-frame">
 		<iframe src="http://robertfinkei.com" />
 	</div> -->
 
-	<div  id="prev-website" class="box controls-nav"><</div>
+    <div id="prev-website" class="box controls-nav">&lt;</div>
 
-	<div class="box controls-website">
-		<span id="progress-bar"></span>
-		<a id="website-name" target="_blank"></a><span id="website-text"></span>
-	</div>
+    <div class="box controls-website">
+        <span id="progress-bar"></span>
+        <a id="website-name" target="_blank"></a><span id="website-text"></span>
+    </div>
 
-	<div id="next-website" class="box controls-nav">></div>
+    <div id="next-website" class="box controls-nav">&gt;</div>
 
-	<div id="three-js-container"></div>
+    <div id="three-js-container"></div>
 
-	<script src="./js/three.js"></script>
-	<script src="./js/three.OrbitControls.js"></script>
-	<script src="./js/stackBlur.js"></script>
-	<script src="./js/growfolio.js"></script>
-	<script src="./js/growfolio.three.js"></script>
-	<script src="./js/growfolio.events.js"></script>
+    <script src="./js/three.js"></script>
+    <script src="./js/three.OrbitControls.js"></script>
+    <script src="./js/stackBlur.js"></script>
+    <script src="./js/growfolio.js"></script>
+    <script src="./js/growfolio.three.js"></script>
+    <script src="./js/growfolio.events.js"></script>
 </body>
 
 </html>

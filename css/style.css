@@ -1,33 +1,40 @@
 /***** MAIN *****/
 
-html { box-sizing: border-box; font-size: 100%; }
+html {
+    box-sizing: border-box;
+    font-size: 100%;
+}
 
-*, *:before, *:after {box-sizing: inherit;}
+*,
+*:before,
+*:after {
+    box-sizing: inherit;
+}
 
-body { 
-	font-family: 'custom';
-	font-weight: bold;
-	overflow: hidden;
+body {
+    font-family: 'custom';
+    font-weight: bold;
+    overflow: hidden;
 }
 
 #three-js-container {
-	position: relative;
+    position: relative;
 }
 
 canvas {
-	width: 100%;
-	height: 100%;
+    width: 100%;
+    height: 100%;
 }
 
 .box {
-	position: absolute;
+    position: absolute;
     color: white;
-	z-index: 10;
-	background-color: rgba(0, 0, 0, 0.5);
-	padding: 10px;
-	border: 1px solid white;
-	border-style: dotted;
-	/* mix-blend-mode: difference; */
+    z-index: 10;
+    background-color: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border: 1px solid white;
+    border-style: dotted;
+    /* mix-blend-mode: difference; */
 }
 
 .controls-main {
@@ -36,55 +43,55 @@ canvas {
 }
 
 #reset {
-	width: 100%;
+    width: 100%;
 }
 
 .controls-download {
-	text-align: right;
-	display: block;
+    text-align: right;
+    display: block;
 }
 
 #dropzone {
-	position: absolute;
-	left:0;
-	top:0;
-	display: flex;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
     align-items: center;
-	justify-content: center;
-	color: white;
-	font-size: 30px;
-	width: 100%;
-	height: 100%;
-	z-index: 100;
-	background: rgba(0, 0, 0, 0.9);
-	border: 20px solid black;
-	outline: 2px solid white;
+    justify-content: center;
+    color: white;
+    font-size: 30px;
+    width: 100%;
+    height: 100%;
+    z-index: 100;
+    background: rgba(0, 0, 0, 0.9);
+    border: 20px solid black;
+    outline: 2px solid white;
     outline-offset: -20px;
     outline-style: dashed;
-	visibility: hidden;
+    visibility: hidden;
 }
 
 .controls-upload {
-	top: 20px;
+    top: 20px;
     right: 20px;
 }
 
 .controls-upload input {
-	display: none;
+    display: none;
 }
 
 .controls-upload label {
-	cursor: pointer;
+    cursor: pointer;
 }
 
 #upload {
-	pointer-events: none;
+    pointer-events: none;
 }
 
 .controls-video {
-	position: absolute;
-	bottom: 80px;
-	right: 20px;
+    position: absolute;
+    bottom: 80px;
+    right: 20px;
 }
 
 /* .controls-frame {
@@ -98,32 +105,32 @@ canvas {
 } */
 
 .controls-nav {
-	bottom: 20px;
-	width: 40px;
-	height: 40px;
-	text-align: center;
-	cursor: pointer;
+    bottom: 20px;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+    cursor: pointer;
 }
 
 #prev-website {
-	left: 20px;
+    left: 20px;
 }
 
 #next-website {
-	right: 20px;
+    right: 20px;
 }
 
 .controls-website {
     bottom: 20px;
     left: 60px;
-	width: calc(100% - 120px);
-	height: 40px;
+    width: calc(100% - 120px);
+    height: 40px;
 }
 
 #website-text {
-	left: 200px;
+    left: 200px;
     position: absolute;
-	font-weight: normal;
+    font-weight: normal;
 }
 
 #progress-bar {
@@ -133,24 +140,34 @@ canvas {
     bottom: -1.5px;
     left: 0px;
     background-color: white;
-	z-index: -5;
-	animation: progress 30s linear infinite;
+    z-index: -5;
+    animation: progress 30s linear infinite;
 }
 
 @keyframes progress {
-    from {width: 0%;}
-    to {width: 100%;}
+    from {
+        width: 0%;
+    }
+    to {
+        width: 100%;
+    }
 }
 
-.controls-website a:link, .controls-website a:visited, .controls-website a:hover, .controls-website a:active{
-	color: white;
+.controls-website a:link,
+.controls-website a:visited,
+.controls-website a:hover,
+.controls-website a:active {
+    color: white;
 }
 
 button {
-	color: black;
+    color: black;
 }
 
-button a:link, button a:visited, button a:hover, button a:active{
-	text-decoration: none;
-	color: black;
+button a:link,
+button a:visited,
+button a:hover,
+button a:active {
+    text-decoration: none;
+    color: black;
 }
